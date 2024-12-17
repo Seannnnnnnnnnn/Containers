@@ -1,91 +1,80 @@
-// a heap allocated dynamic array. Basically std::vector from scratch
-#include <stdexcept>
-#include <format>
+/* Implements std::vector from scratch; that is, a heap-allocated dynamically sized array */
+#include <exception>
+#include <iostream>
 
 
 template<typename T>
 class Vector
 {
 private:
-    T*  data_ { nullptr };
+    T* m_Data;
+    size_t m_Capacity; 
+    size_t m_Size;
 
-    size_t size_ { 0 };
-    size_t capacity_ { 2 };
-
-    void reallocate(size_t new_capacity)
-    {
-        // allocates a new block of memory, moves current elems into the new block and then frees memory
-        T* new_block = new T[new_capacity];
+private:
+    void _Resize(size_t new_capacity) {
+        // responsible for resizing m_Data
+        m_Capacity = new_capacity;
         
-        // if we are shrinking the array
-        if (new_capacity < size_);
-            size_ = new_capacity;
-
-        for (size_t i; i < size_; ++i) 
-            new_block[i] = std::move(data_[i]);
-
-        delete [] data_;
-        data_ = new_block; 
-        capacity_ = new_capacity;
-    }
-
-    void check_reallocate()
-    {
-        // checks if we need to reallocate memeory
-        if (size_ == capacity_)
-            reallocate( capacity_ * 2 ); 
-        else if (size == capacity_ % 2)
-            reallocate( capacity % 2);
-        else:
-            return; 
+        T* new_m_Data = new T[m_Capacity];
+        for (size_t i=0; i<m_Size; i++) 
+            new_m_Data[i] = std::move(m_Data[i]);
+        
+        delete[] m_Data;  // free the memory currently at m_Data
+        m_Data = new_m_Data;
     }
 
 public:
-    Vector() { reallocate(2) };
-
-    ~Vector() { delete[] data_; }
-
-    void PushBack(const T& data)
-    {
-        data_[size_] = data;
-        ++size_;
-        check_reallocate();
+    Vector(size_t capacity=2) {
+        m_Capacity = capacity;
+        m_Size = 0;
+        m_Data = new T[m_Capacity];
     }
 
-    // pushback for tempory objects
-    void PushBack(T&& data)
-    {
-        data_[size_] = std::move(data);
-        ++size_;
-        check_reallocate();
+    ~Vector() {
+        delete [] m_Data;
     }
 
-    size_t Size() { return size_; }
-
-    const T& operator[] (size_t idx) const
-    {
-        return data_[idx];
-    } 
-
-    T& operator[] (size_t idx)
-    {
-        return data_[idx];
-    } 
-
-    template<typename... Args>
-    T& EmplaceBack(Args&&... args)
-    {
-        new(&data_[size_]) T(std::forward<Args>(args)...); // construct object in place
-        ++size_;
-        return data[size_];
+    void PushBack(T element) {
+        if (m_Size == m_Capacity) 
+            _Resize(m_Capacity*2);
+        m_Data[m_Size] = element;
+        m_Size++;
     }
 
-    void PopBack()
-    {
-        if (size_ > 0)
-        {
-            size_--;
-            data[size_].~T();
-        }
+    T& PopBack() {
+        if (m_Size == 0)
+            throw std::out_of_range("PopBack called on empty vector");
+        m_Size--;
+        return  m_Data[m_Size];
+    }
+
+    size_t Size() const { return m_Size; }
+
+    void Print() const {
+        for (size_t i=0; i<m_Size; i++)
+            std::cout<< m_Data[i] << "\n";
+    }
+
+    T& operator[] (size_t index) {
+        std::cout << "non const return" << std::endl;
+        return m_Data[index];
+    }
+
+    const T& operator[] (size_t index) const {
+        std::cout << "const return" << std::endl;
+        return m_Data[index];
     }
 };
+
+
+
+int main() {
+    Vector<int> vec;
+    vec.PushBack(1);
+    vec.PushBack(2);
+    vec.PushBack(3);
+    vec.PushBack(4);
+    std::cout << vec[2] << std::endl;
+    const int elem = vec[2];
+}
