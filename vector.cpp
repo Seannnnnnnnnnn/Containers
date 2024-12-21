@@ -26,6 +26,8 @@ private:
 
 public:
     Vector(size_t capacity=2) {
+        if (capacity < 0)
+            throw std::logic_error("Capacity must be greater than 0")
         m_Capacity = capacity;
         m_Size = 0;
         m_Data = new T[m_Capacity];
@@ -70,7 +72,7 @@ public:
 
 
 int main() {
-    Vector<int> vec;
+    Vector<int> vec(7);
     vec.PushBack(1);
     vec.PushBack(2);
     vec.PushBack(3);
