@@ -28,11 +28,31 @@ public:
 
     struct Iterator
     {
-        Iterator(Node* node) : m_ptr(node) {}
-        Node operator *() return { *Node; }
+        Iterator(Node* node) : current_(node) {}
+        T& operator*() { return current_->val_; }
+        T* operator->() { return &(current_->val_); }
+        
+        Iterator operator ++ () 
+            {
+                if (current_)
+                    current_ = current_->next_.get(); 
+                return *this;
+            }
+        
+        
+        Iterator operator ++ (int)
+            {
+                auto tmp = this;
+                if (current_)
+                    current_ = current_->next_.get();
+                return *tmp;
+            }
 
+        bool operator == (const Iterator& other) const { return current_ == other.current_; }
+        bool operator != (const Iterator& other) const { return current_ != other.current_; }
+        
     private:
-        Node* m_ptr; 
+        Node* current_; 
     };
 
 
@@ -59,9 +79,32 @@ public:
         size_++;
     }
 
-    Iterator begin() { return Iterator(head_); }
+    void Reverse() // TODO: debug this boy
+    { 
+       Node* prev = head_.get(); 
+       Node* curr = head_.get()->next_;
+       while (curr) {
+            Node* next = curr.get()->next_;
+            curr->next_ = std::move(prev);
+            prev = std::move(curr); 
+            curr = std::move(next); 
+       }
+    }
+
+    Iterator begin() { return Iterator(head_.get()); }
     Iterator end() { return nullptr; }
 
+    Iterator Find(const T& val)
+    {
+        Iterator curr = begin(); 
+        while (curr != end())
+        {
+            if (*curr == val)
+                return curr;
+            ++curr;
+        }
+        return end(); 
+    }
 };
 
 
@@ -69,7 +112,16 @@ public:
 int main()
 {
     List<int> myList;
-    myList.Add(5);
-    myList.Add(6);
-    std::cout << myList.Size() << std::endl;
+    for (int i = 1; i <= 10; ++i)
+        myList.Add(i);
+    
+    for (auto elem : myList)
+        std::cout << elem << " ";
+    
+    std::cout << "\nReversing:\n";
+    myList.Reverse();
+
+    for (auto elem : myList)
+        std::cout << elem << " ";
+
 }
