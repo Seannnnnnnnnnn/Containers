@@ -1,73 +1,77 @@
-/* Implements a Double Ended Queue (DEQ). Using a linked list as the underlying structure */
-#include <iostream>
-#include <memory>
+/* Implements a Double Ended Queue (DEQ or Dequeue) */
 
 
 template<typename T>
 class DEQ
 {
+private: 
+
     struct Node
     {
-        T& data_;
-        Node* next_;
+        T& m_val; 
+        Node* m_next;
 
-        Node(const T& data){
-            data_ = data;
-            next_ = nullptr;
-        }
-
-        ~Node() {   
-            delete next_;
-        }
+        Node (T& val) : m_val(val), m_next(nullptr) {} 
     };
 
-private:
-    Node* front_;
-    Node* back_;
-    size_t size_; 
+    size_t m_size; 
+    Node* m_head; 
+    Node* m_tail;
 
 public:
-    DEQ() {
-        front_ = nullptr;
-        back_ = nullptr;
-        size_ = 0;
-    }
-    ~DEQ() {}  // TODO: think about how to delete out a Deque, will need to free every node in the LL
-
-    void AppendLeft(const T& data)  // append data to the front of the queue
+    DEQ () : m_size(0), m_head(nullptr), m_tail(nullptr) {}
+    
+    ~DEQ()
     {
-        Node* front = std::unique_ptr(Node(data));
-        front->next_ = front_;
-        front_ = front;
-        size_++;
+        Node* current = head_;
+        while (current)
+            {
+                Node* tmp = current->m_next;
+                delete current;
+                current = tmp;
+            }
     }
 
-    void AppendRight(const T& data)
+    struct Iterator
     {
-        Node* back = std::unique_ptr(Node(data));
-        back_->next_ = back;
-        back_ = back;
-        size_++;
+        private:
+            Node* current;
+        
+        public:
+            using 
+    };
+
+    // Pushes value to end of the queue
+    void PushRight(const T& val)
+    {
+        Node* node = new Node(val);
+        if (m_tail)
+            {
+                m_tail->m_next = node; 
+                m_tail = node;
+            }
+        else 
+            {
+                m_tail = m_head = node;
+            }
+        m_size++;
     }
 
-    void Print()
-    {
-        Node* curr = front_;
-        while (curr)
+    // insert at the front of the queue
+    void PushLeft(const T& val)
         {
-            std::cout << curr->data_ << " -> ";
-            curr = curr->next_;
+            Node* node = new Node(val);
+            if (m_head)
+                {
+                    node->m_next = m_head;
+                    m_head = node;
+                }
+            else 
+                {
+                    m_tail = m_head = node;
+                }
+            size++;
         }
-    } 
+
+    size_t Size() const { return m_size; }
 };
-
-
-int main()
-{
-    DEQ<int> deq;
-    deq.AppendRight(1);
-    deq.AppendRight(2);
-    deq.AppendRight(3);
-
-    deq.Print();
-}
