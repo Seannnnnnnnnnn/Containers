@@ -5,6 +5,7 @@
 
 
 static const float LOAD_FACTOR = 0.5;
+static const float CAPACITY_INCREASE_FACTOR = 1.5;
 
 
 template<typename KeyType, typename ValueType>
@@ -24,7 +25,7 @@ private:
         if (float(m_size)/m_capacity > maximum_load_factor)
             {
                 size_t old_capacity = m_capacity;
-                size_t m_capacity *= 1.5;
+                size_t m_capacity *= CAPACITY_INCREASE_FACTOR;
              
                 T* old_table = m_values;
                 T* m_values = new T[new_capacity];
